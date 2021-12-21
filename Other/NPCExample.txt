@@ -1,0 +1,305 @@
+var param menu
+var str btnSpec
+var int charName
+var int masteryFlag
+var int masteryPoints
+var int masteryReq
+var int masteryAdd
+var int textNo
+var int plantIID
+var int plantIIDMod
+var int plantName
+var int plantType
+var int plantFlag
+var int plantTempFlag
+var int plantReward
+var int plantRewardFlag
+var int plantExMod
+var int prize
+var int prizeNum
+var int curMonth
+var int curDay
+var int curHour
+var int curMin
+var int plantMonth
+var int plantDay
+var int plantHour
+var int plantMin
+var int plantMonthFlag
+var int plantDayFlag
+var int plantHourFlag
+var int plantMinFlag
+var int rewardMinFull
+var int rewardMinPartial
+var int plantsGrownFlag
+var int plantsGrown
+var int masteryExVal
+masteryFlag = 267
+plantsGrownFlag = 268
+plantFlag = 951
+plantMonthFlag = 952
+plantDayFlag = 953
+plantHourFlag = 954
+plantMinFlag = 955
+plantRewardFlag = 956
+plantTempFlag = 957
+masteryReq = getexval(1)
+plantIIDMod = 28000
+charName = getname()
+if menu > 0 and menu < 8
+	plantIID = getflag(plantTempFlag)
+	plantIID = plantIID + menu
+	if getitem(plantIID) > 99
+		popitem(plantIID, 100)
+		setflag(plantFlag, plantIID)
+		goto SetPlantTime
+	else
+		opendialog(603)
+	endif
+elseif menu > 9 and menu < 61
+	plantIID = menu + plantIIDMod
+	setflag(plantTempFlag, plantIID)
+	textNo = plantIID + 1
+	plantName = getobjname 0, textNo
+	opendialog(4, plantName)
+elseif menu == 70
+	plantIID = 28071
+	if getitem(plantIID) > 0
+		popitem(plantIID, 1)
+		goto SetPlantTime
+	else
+		opendialog(603)
+	endif
+elseif menu == 94
+	if getitem(28071) > 0
+		btnSpec = "<p color=FF33CC33 act=0 val=70>[HiddenButton]&nl;</p>"
+		opendialog(3, btnSpec)
+	else
+		opendialog(3, "")
+	endif
+elseif menu == 95
+	if checkslot(3) > 0
+		plantReward = getflag(plantRewardFlag)
+		plantIID = getflag(plantFlag)
+		plantExMod = plantIID - plantIIDMod
+		plantExMod = plantExMod * 10
+		masteryExVal = plantExMod * 10
+		if plantReward == 0
+			goto ClearTheField
+		elseif plantReward == 1
+			plantExMod = plantExMod * 10
+			masteryExVal = masteryExVal + 11
+		endif
+		prize = plantExMod + 5
+		prizeNum = prize + 1
+		prize = getexval(prize)
+		prizeNum = getexval(prizeNum)
+		if prize > 0
+			pushitem(prize, prizeNum)
+		endif
+		prize = plantExMod + 7
+		prizeNum = prize + 1
+		prize = getexval(prize)
+		prizeNum = getexval(prizeNum)
+		if prize > 0
+			pushitem(prize, prizeNum)
+		endif
+		prize = plantExMod + 9
+		prizeNum = prize + 1
+		prize = getexval(prize)
+		prizeNum = getexval(prizeNum)
+		if prize > 0
+			pushitem(prize, prizeNum)
+		endif
+		masteryAdd = getexval(masteryExVal)
+		masteryPoints = getflag(masteryFlag)
+		masteryPoints = masteryPoints + masteryAdd
+		setflag(masteryFlag, masteryPoints)
+		plantsGrown = getflag(plantsGrownFlag)
+		if plantsGrown < 100
+			plantsGrown = 100
+			setflag(plantsGrownFlag, plantsGrown)
+		endif
+		plantsGrown = plantsGrown + 1
+		setflag(plantsGrownFlag, plantsGrown)
+		goto ClearTheField
+	else
+		opendialog(602)
+	endif
+elseif menu == 96
+	point ClearTheField
+	setflag(plantFlag, 0)
+	setflag(plantRewardFlag, 0)
+	goto FieldStatus
+elseif menu == 97
+	point FieldStatus
+	plantIID = getflag(plantFlag)
+	if plantIID > 0
+		goto ShowTimeLeft
+	else
+		opendialog(2)
+	endif
+elseif menu == 98
+	goto BackToEntry
+elseif menu == 99
+	opendialog(99, charName)
+else
+	masteryPoints = getflag(masteryFlag)
+	if masteryPoints < 100
+		masteryPoints = 100
+		setflag(masteryFlag, masteryPoints)
+	endif
+	masteryPoints = masteryPoints - 100
+	if masteryPoints >= masteryReq
+		point BackToEntry
+		opendialog(0, charName)
+	else
+		opendialog(600, masteryPoints, masteryReq)
+	endif
+endif
+goto End
+point SetPlantTime
+curMonth = getmonth()
+curDay = getday()
+curHour = gethour()
+curMin = getminute()
+plantExMod = plantIID - plantIIDMod
+plantExMod = plantExMod * 10
+plantMonth = plantExMod + 1
+plantDay = plantExMod + 2
+plantHour = plantExMod + 3
+plantMin = plantExMod + 4
+textNo = getexval(plantMonth)
+curMonth = curMonth + textNo
+textNo = getexval(plantDay)
+curDay = curDay + textNo
+textNo = getexval(plantHour)
+curHour = curHour + textNo
+textNo = getexval(plantMin)
+curMin = curMin + textNo
+if curMin > 59
+	curMin = curMin - 60
+	curHour = curHour + 1
+endif
+if curHour > 23
+	curHour = curHour - 24
+	curDay = curDay + 1
+endif
+if curMonth == 6 and curDay > 30
+	curDay = 1
+	curMonth = 7
+elseif curMonth == 7 and curDay > 31
+	curDay = 1
+	curMonth = 8
+elseif curMonth == 8 and curDay > 31
+	curDay = 1
+	curMonth = 9
+elseif curMonth == 9 and curDay > 30
+	curDay = 1
+	curMonth = 10
+elseif curMonth == 10 and curDay > 31	
+	curDay = 1
+	curMonth = 11
+endif
+setflag(plantFlag, plantIID)
+setflag(plantMonthFlag, curMonth)
+setflag(plantDayFlag, curDay)
+setflag(plantHourFlag, curHour)
+setflag(plantMinFlag, curMin)
+point ShowTimeLeft
+plantIID = getflag(plantFlag)
+if plantIID > 28010 and plantIID < 28018
+	textNo = 10
+elseif plantIID > 28020 and plantIID < 28028
+	textNo = 11
+elseif plantIID > 28030 and plantIID < 28038
+	textNo = 12
+elseif plantIID > 28040 and plantIID < 28048
+	textNo = 13
+elseif plantIID > 28050 and plantIID < 28058
+	textNo = 14
+elseif plantIID > 28060 and plantIID < 28068
+	textNo = 15
+else
+	textNo = 16
+endif
+plantMonth = getflag(plantMonthFlag)
+plantDay = getflag(plantDayFlag)
+plantHour = getflag(plantHourFlag)
+plantMin = getflag(plantMinFlag)
+curMonth = getmonth()
+curDay = getday()
+curHour = gethour()
+curMin = getminute()
+plantMin = plantMin - curMin
+plantHour = plantHour - curHour
+if plantMin < 0
+	plantMin = plantMin + 60
+	plantHour = plantHour - 1
+endif
+if plantHour < 0
+	plantHour = plantHour + 24
+	plantDay = plantDay - 1
+endif
+if plantMonth == 6 and plantDay > 30
+	plantDay = 1
+	plantMonth = 7
+elseif plantMonth == 7 and plantDay > 31
+	plantDay = 1
+	plantMonth = 8
+elseif plantMonth == 8 and plantDay > 31
+	plantDay = 1
+	plantMonth = 9
+elseif plantMonth == 9 and plantDay > 30
+	plantDay = 1
+	plantMonth = 10
+elseif plantMonth == 10 and plantDay > 31	
+	plantDay = 1
+	plantMonth = 11
+endif
+if plantMonth == curMonth and plantDay == curDay
+	opendialog(textNo, plantHour, plantMin)
+else
+	plantMonth = getflag(plantMonthFlag)
+	plantDay = getflag(plantDayFlag)
+	plantHour = getflag(plantHourFlag)
+	plantMin = getflag(plantMinFlag)
+	plantMonth = curMonth - plantMonth
+	plantDay = curDay - plantDay
+	plantHour = curHour - plantHour
+	plantMin = curMin - plantMin
+	if plantMonth > 0
+		if plantMonth == 6
+			plantDay = plantDay + 30
+		elseif plantMonth == 7
+			plantDay = plantDay + 31
+		elseif plantMonth == 8
+			plantDay = plantDay + 31
+		elseif plantMonth == 9
+			plantDay = plantDay + 30
+		elseif plantMonth == 10
+			plantDay = plantDay + 31
+		endif
+	endif
+	plantDay = plantDay * 24
+	plantHour = plantHour + plantDay
+	plantHour = plantHour * 60
+	plantMin = plantMin + plantHour
+	plantExMod = plantIID - plantIIDMod
+	plantExMod = plantExMod * 100
+	textNo = plantExMod + 1
+	rewardMinFull = getexval(textNo)
+	textNo = plantExMod + 2
+	rewardMinPartial = getexval(textNo)
+	if plantMin <= rewardMinFull
+		setflag(plantRewardFlag, 2)
+		opendialog(100)
+	elseif plantMin <= rewardMinPartial
+		setflag(plantRewardFlag, 1)
+		opendialog(101)
+	else
+		setflag(plantRewardFlag, 0)
+		opendialog(102)
+	endif
+endif
+point End
